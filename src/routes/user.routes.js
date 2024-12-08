@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {  registerUser,
+import {    registerUser,
     loginUser,
     logOutUser,
     refreshAccessToken,
@@ -7,7 +7,9 @@ import {  registerUser,
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCoverImage} from "../controllers/user.controllers.js"
+    updateUserCoverImage,
+    getUserChannelProfile,
+    getWatchHistory} from "../controllers/user.controllers.js"
 
 import { upload } from "../middlewares/multer.middleware.js";
 // import { verify } from "jsonwebtoken";
@@ -38,20 +40,21 @@ router.route("/register").post(
 
     router.route("/refresh-token").post(refreshAccessToken)
 
-    router.route("/change-password").post(
-        upload.fields([
+    router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 
-            {
-                name: "oldPassword",
-                maxCount:1
-            },
-            {
-                name: "newPassword",
-                maxCount:1
-            }
-        ]),changeCurrentPassword)
+    router.route("/current-user").post(verifyJWT, getCurrentUser)
 
-    router.route("/current-user").post(getCurrentUser)
+    router.route("/update-account").patch(verifyJWT, updateAccountDetails)
+
+    router.route("/avatar").patch(verifyJWT, upload.single("avatar") ,updateUserAvatar)
+
+    router.route("/cover-image").patch(verifyJWT, upload.single("coverImage") ,updateUserCoverImage)
+
+    router.route("/c/:username").get(verifyJWT,getUserChannelProfile)
+
+    router.route("/history").get(verifyJWT,getWatchHistory)
+
+
 
 
 
