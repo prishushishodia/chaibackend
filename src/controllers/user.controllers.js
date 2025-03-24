@@ -49,9 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
-  const coverImage = coverImageLocalPath
-    ? await uploadOnCloudinary(coverImageLocalPath)
-    : null;
+  const coverImage = coverImageLocalPath? await uploadOnCloudinary(coverImageLocalPath): null;
 
   if (!avatar) {
     throw new ApiError(404, "Avatar upload failed");
@@ -377,42 +375,47 @@ const getWatchHistory = asyncHandler(async (req, res) => {
       $lookup: {
         from: "videos",
         localField: "watchHistory",
-        foreignField:"_id",
-        as:"watchHistory",
-        pipeline:[{
-          $lookup:{
-            from: "users",
-            localField:"owner",
-            foreignField:"_id",
-            as: "owner",
-            pipeline:[{
-              $project:{
-                fullname:1,
-                username:1,
-                avatar:1,
-
-              }
-            }]
-          }
-        },
-      {
-        $addFields:{
-          owner:{
-            $first: "$owner"
-          }
-        }
-      }]
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullname: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
       },
     },
   ]);
 
   return res
-  .status(200)
-  .json(new ApiResponse(
-    200, user[0].getWatchHistory,
-    "watch history of user fetched successfully"
-  ))
-
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].getWatchHistory,
+        "watch history of user fetched successfully"
+      )
+    );
 });
 
 export {
@@ -426,5 +429,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
-  getWatchHistory
+  getWatchHistory,
 };
